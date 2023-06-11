@@ -543,4 +543,6 @@ https://www.kubeflow.org/docs/started/k8s/kfctl-istio-dex/#exposing-kubeflow
 Это базовое руководство по установке и настройке Kubeflow в Mail.ru Cloud Solutions. Обратите внимание, что могут быть различия в конкретных настройках и инструкциях, основанных на вашей конкретной среде и версии Kubeflow. Рекомендуется обратиться к официальной документации Kubeflow и Mail.ru Cloud Solutions для получения актуальной информации и инструкций.
 
 
-LINKS https://github.com/stockblog/kubeflow_examples/blob/master/mnist/mnist_mcs_k8s.ipynb
+LINKS
+https://github.com/stockblog/kubeflow_examples/blob/master/mnist/mnist_mcs_k8s.ipynb
+https://tensorflow.rstudio.com/tutorials/quickstart/beginner
