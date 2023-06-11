@@ -546,3 +546,4 @@ https://www.kubeflow.org/docs/started/k8s/kfctl-istio-dex/#exposing-kubeflow
 LINKS
 https://github.com/stockblog/kubeflow_examples/blob/master/mnist/mnist_mcs_k8s.ipynb
 https://tensorflow.rstudio.com/tutorials/quickstart/beginner
+https://github.com/stockblog/kubeflow_examples/blob/master/pipelines/simple-notebook-pipeline/Simple%20Notebook%20Pipeline.ipynb
