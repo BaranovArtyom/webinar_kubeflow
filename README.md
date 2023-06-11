@@ -541,3 +541,6 @@ https://www.kubeflow.org/docs/started/k8s/kfctl-istio-dex/#exposing-kubeflow
 2. Изучите руководства и документацию, чтобы узнать, как использовать Kubeflow для разработки и выполнения рабочих нагрузок машинного обучения.
 
 Это базовое руководство по установке и настройке Kubeflow в Mail.ru Cloud Solutions. Обратите внимание, что могут быть различия в конкретных настройках и инструкциях, основанных на вашей конкретной среде и версии Kubeflow. Рекомендуется обратиться к официальной документации Kubeflow и Mail.ru Cloud Solutions для получения актуальной информации и инструкций.
+
+
+LINKS https://github.com/stockblog/kubeflow_examples/blob/master/mnist/mnist_mcs_k8s.ipynb
