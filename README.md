@@ -441,3 +441,103 @@ EOF
 
 #### Open the notebook git_kubeflow_examples/pipelines/simple-notebook-pipeline/Simple Notebook Pipeline.ipynb
 
+SUMMARY
+Мы установим и протестируем Kubeflow в Mail.ru Cloud Solutions.
+Протестировано с использованием Kubeflow 1.1, Kubernetes 1.16.4, Istio 1.3.1, клиентская виртуальная машина Ubuntu 18.04.
+Ссылки на Kubeflow:
+Обзор:
+https://www.kubeflow.org/docs/started/kubeflow-overview/
+
+Минимальные системные требования:
+https://www.kubeflow.org/docs/started/k8s/overview/
+
+Инструкция для многопользовательской среды:
+https://www.kubeflow.org/docs/started/k8s/kfctl-istio-dex/
+
+Часть 1. Установка Kubeflow
+Предварительные требования:
+Создать кластер K8s в MCS и загрузить файл kubeconfig.
+Инструкция: https://mcs.mail.ru/help/kubernetes/clusterfast
+
+Kubernetes as a Service: https://mcs.mail.ru/app/services/containers/add/
+
+Установка kubectl:
+https://mcs.mail.ru/help/ru_RU/k8s-start/connect-k8s
+
+Настройка пути к kubeconfig для kubectl:
+export KUBECONFIG=/замените_на_путь/к_вашему_kubeconfig.yaml
+также удобно настроить автодополнение для kubectl и использовать псевдоним:
+alias k=kubectl
+source <(kubectl completion bash)
+complete -F __start_kubectl k
+Настройка кластера K8s:
+Нам понадобится эта функция в K8s для запуска Kubeflow.
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection
+
+1. Назначить белый IP-адрес главному узлу кластера K8s.
+2. Подключиться по SSH к главному узлу:
+ssh -i ваш_ключ.pem centos@IP_главного_узла
+3. Отредактировать /etc/kubernetes/apiserver:
+sudo vim /etc/kubernetes/apiserver
+добавьте в KUBE_API_ARGS:
+--service-account-issuer=kubernetes.default.svc  --service-account-signing-key-file=/etc/kubernetes/certs/ca.key --service-account-api-audiences=api,istio-ca
+4. Перезапустить кластер через интерфейс пользовательского веб-интерфейса.
+Установка Istio:
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.3.1 TARGET_ARCH=x86_64 sh -
+1. Для настройки инструмента istioctl на вашей рабочей станции добавьте директорию /home/ubuntu/istio/istio-1.3.1/bin к переменной среды PATH:
+export PATH="$PATH:/home/ubuntu/istio/istio-1.3.1/bin"
+2. Выполните предварительную проверку установки Istio:
+istioctl verify-install
+cd ~/istio/istio-1.3.1
+3. Установите все определения пользовательских ресурсов
+
+ Istio в кластере:
+kubectl apply -f install/kubernetes/istio-demo.yaml
+Установка Kubeflow CLI:
+1. Скачайте выпуск kfctl:
+wget https://github.com/kubeflow/kfctl/releases/download/v1.1.0/kfctl_v1.1.0-0-g9a3621e_linux.tar.gz
+tar -xvf kfctl_v1.1.0-0-g9a3621e_linux.tar.gz
+2. Установите переменные среды:
+export PATH=$PATH:/директория_kfctl
+export KF_NAME=kf1
+export BASE_DIR=/директория_kуда_вы_установили_kfctl
+export KF_DIR=${BASE_DIR}/${KF_NAME}
+3. Установите Kubeflow:
+cd ${KF_DIR}
+kfctl apply -V -f ./kfctl_istio_dex.v1.1.0.yaml
+4. Подготовьте конфигурацию и запустите Kubeflow:
+kfctl build -V -f ./kfctl_istio_dex.v1.1.0.yaml
+kfctl apply -V -f ./kfctl_istio_dex.v1.1.0.yaml
+
+Часть 2. Добавление статических пользователей для базовой аутентификации.
+1. Скачайте конфигурацию Dex:
+cd ${KF_DIR}/ks_app
+wget https://raw.githubusercontent.com/kubeflow/manifests/v1.1-branch/kfdef/kfctl_istio_dex.v1.1.0.yaml
+2. Отредактируйте файл kfctl_istio_dex.v1.1.0.yaml и добавьте пользователей и хешированные пароли.
+3. Обновите ConfigMap:
+kubectl edit cm dex -n auth -o yaml
+добавьте пользователей и хешированные пароли.
+4. Перезапустите Dex:
+kubectl delete pod -n auth -l app=authservice
+kubectl delete pod -n auth -l app=dex
+5. Убедитесь, что Dex снова работает:
+kubectl get pod -n auth
+
+Часть 3. Внешний доступ к Kubeflow
+1. Защитите Kubeflow с помощью HTTPS:
+https://kubernetes.github.io/ingress-nginx/deploy/#prerequisite-generic-deployment-command
+2. Измените тип службы istio-ingressgateway на NodePort и затем на LoadBalancer:
+kubectl patch service istio-ingressgateway -n istio-system -p '{"spec": {"type": "LoadBalancer"}}'
+3. Получите внешний IP-адрес службы istio-ingressgateway:
+kubectl get service istio-ingressgateway -n istio-system
+4. Создайте сертификат с помощью cert-manager для входящего шлюза:
+https://docs.cert-manager.io/en/latest/getting-started/install/kubernetes.html
+https://www.kubeflow.org/docs/started/k8s/kfctl-istio-dex/#exposing-kubeflow
+
+Часть 4. Практика с Kubeflow
+1. Следуйте по предоставленным ссылкам и требованиям,
+
+ чтобы начать работу с Kubeflow.
+2. Изучите руководства и документацию, чтобы узнать, как использовать Kubeflow для разработки и выполнения рабочих нагрузок машинного обучения.
+
+Это базовое руководство по установке и настройке Kubeflow в Mail.ru Cloud Solutions. Обратите внимание, что могут быть различия в конкретных настройках и инструкциях, основанных на вашей конкретной среде и версии Kubeflow. Рекомендуется обратиться к официальной документации Kubeflow и Mail.ru Cloud Solutions для получения актуальной информации и инструкций.
